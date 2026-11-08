@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>J-Baby Trend · 일본 육아템 실시간 랭킹</title>
+<meta name="description" content="라쿠텐·아마존 재팬·인스타그램에서 지금 뜨는 일본 육아템을 한눈에. 엔화·원화 가격과 구매대행 공구 문의까지.">
+<meta name="theme-color" content="#ffffff">
+
+<!-- Fonts: 영문 제목 Libre Baskerville / 라벨 Jost / 일본어 Noto Serif JP / 한글 Noto Sans KR -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Jost:wght@400;500&family=Noto+Serif+JP:wght@400;600&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+
+<!-- Tailwind Play CDN (프로토타입용. 운영 배포 시에는 Tailwind CLI 로 빌드한 CSS 사용 권장) -->
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink:   { DEFAULT: '#333333', 900: '#313131', 700: '#4a4a4a', 500: '#777777', 400: '#999999', 300: '#bdbdbd' },
+          paper: { DEFAULT: '#ffffff', 50: '#fafafa', 100: '#f4f4f3', 200: '#ececea', 300: '#e2e2df' },
+          mist:  '#f2f2f2',
+        },
+        fontFamily: {
+          sans:  ['"Noto Sans KR"', '"Apple SD Gothic Neo"', '"Malgun Gothic"', 'sans-serif'],
+          serif: ['"Libre Baskerville"', 'Georgia', '"Noto Serif JP"', 'serif'],
+          jp:    ['"Noto Serif JP"', '"Hiragino Mincho ProN"', '"Yu Mincho"', 'serif'],
+          label: ['Jost', '"Futura"', '"Century Gothic"', 'sans-serif'],
+        },
+        keyframes: {
+          pulseDot: { '0%,100%': { transform: 'scale(1)', opacity: '1' }, '50%': { transform: 'scale(1.8)', opacity: '0' } },
+          fadeUp:   { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+        },
+        animation: {
+          pulseDot: 'pulseDot 1.8s ease-out infinite',
+          fadeUp: 'fadeUp .45s ease-out both',
+        },
+      },
+    },
+  };
+</script>
+<style>
+  html { -webkit-text-size-adjust: 100%; }
+  body { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+  .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .tap { -webkit-tap-highlight-color: transparent; }
+  .hero-shade { background: linear-gradient(180deg, rgba(0,0,0,.05) 30%, rgba(0,0,0,.45) 100%); }
+</style>
+</head>
+
+<body class="bg-white text-ink font-sans antialiased">
+
+<!-- ───────────── Header ───────────── -->
+<header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-paper-200" style="padding-top: env(safe-area-inset-top, 0px)">
+  <div class="mx-auto max-w-6xl flex items-stretch justify-between h-14 pl-4">
+    <a href="#" class="flex flex-col justify-center min-w-0 tap" aria-label="J-Baby Trend 홈">
+      <span class="font-serif font-bold text-[19px] tracking-[0.06em] text-ink-700 leading-none">J-BABY TREND</span>
+      <span class="mt-1 font-label text-[10px] tracking-[0.18em] text-ink-400 leading-none">JAPAN BABY RANKING</span>
+    </a>
+    <div id="liveBadge" class="shrink-0 flex items-center gap-2 bg-ink-900 text-white px-4" role="status" aria-live="polite">
+      <span class="relative flex w-2 h-2">
+        <span class="absolute inset-0 rounded-full bg-emerald-400 animate-pulseDot"></span>
+        <span class="relative w-2 h-2 rounded-full bg-emerald-400"></span>
+      </span>
+      <span class="leading-tight">
+        <span class="block font-label text-[11px] tracking-[0.12em]">LIVE</span>
+        <span id="liveText" class="block text-[10px] text-white/70">업데이트 확인 중</span>
+      </span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ───────────── Hero ───────────── -->
+  <section class="relative h-[62vh] min-h-[380px] max-h-[620px] overflow-hidden bg-paper-200">
+    <img id="heroImg" src="https://images.unsplash.com/photo-1519689680058-324335c77eba?w=1400&q=80&auto=format&fit=crop"
+         alt="" class="absolute inset-0 w-full h-full object-cover">
+    <div class="absolute inset-0 hero-shade"></div>
+    <div class="absolute inset-x-0 bottom-0 mx-auto max-w-6xl px-5 pb-8 text-white">
+      <p class="font-label text-[11px] tracking-[0.24em] opacity-90">TODAY'S PICK FROM JAPAN</p>
+      <h1 class="mt-2 font-serif text-[30px] sm:text-[40px] leading-tight">Japan Baby Trend</h1>
+      <p class="mt-2 text-[14px] leading-relaxed opacity-95">지금 일본 엄마들이 고르는 육아템을<br class="sm:hidden"> 엔화·원화 가격과 함께 보여드려요.</p>
+      <a href="#ranking" class="tap mt-5 inline-flex items-center gap-3 border border-white/90 px-5 py-2.5 text-[13px] hover:bg-white hover:text-ink transition">
+        <span class="font-label tracking-[0.12em]">See Ranking</span>
+        <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- ───────────── Item category ───────────── -->
+  <section class="bg-paper-100 py-10">
+    <div class="mx-auto max-w-6xl">
+      <div class="px-5">
+        <h2 class="font-serif font-bold text-[26px] tracking-[0.02em] text-ink-700">Item category</h2>
+        <p class="mt-1 text-[13px] text-ink-500">카테고리로 찾기</p>
+      </div>
+      <div id="categoryTabs" class="no-scrollbar mt-6 flex gap-4 overflow-x-auto px-5 pb-2" role="tablist" aria-label="카테고리"></div>
+      <div class="mx-5 mt-3 h-px bg-paper-300 relative overflow-hidden">
+        <span id="tabIndicator" class="absolute top-0 left-0 h-px bg-ink-700 transition-all duration-300"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── Ranking ───────────── -->
+  <section id="ranking" class="mx-auto max-w-6xl px-5 pt-12 pb-14 scroll-mt-16">
+    <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+      <div>
+        <h2 class="font-serif font-bold text-[26px] tracking-[0.02em] text-ink-700">Ranking</h2>
+        <p class="mt-1 text-[13px] text-ink-500">라쿠텐 · 아마존 재팬 · 인스타그램 실시간 인기 순위</p>
+      </div>
+      <div id="sortGroup" class="flex gap-5 text-[13px]" role="group" aria-label="정렬"></div>
+    </div>
+
+    <!-- 데모 데이터 안내 (실데이터 연동 시 DATA_META.isSample = false 로 숨겨짐) -->
+    <p id="sampleNotice" class="hidden mt-5 border border-paper-300 bg-paper-50 px-3 py-2 text-[11.5px] leading-relaxed text-ink-500">
+      지금은 <b class="text-ink-700">샘플 데이터</b>로 화면을 보여주고 있어요. 순위·가격·뱃지는 실제 값이 아니며, 크롤러를 연동하면 실데이터로 바뀝니다.
+    </p>
+
+    <p class="mt-5 text-[12px] text-ink-400 font-label tracking-wide"><span id="resultCount" class="text-ink-700">0</span> ITEMS · <span id="rateText"></span></p>
+
+    <ul id="productGrid" class="mt-4 grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 md:grid-cols-3 lg:grid-cols-4"></ul>
+    <div id="emptyState" class="hidden py-16 text-center text-ink-500 text-sm">이 카테고리에는 아직 상품이 없어요.</div>
+
+    <div class="mt-10 flex justify-center">
+      <button id="moreBtn" class="tap hidden w-[240px] max-w-full items-center justify-between border border-ink-900 bg-white px-6 py-3.5 text-[14px] text-ink-700 hover:bg-ink-900 hover:text-white transition">
+        <span class="font-label tracking-[0.1em] mx-auto">More</span>
+        <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+      </button>
+    </div>
+  </section>
+</main>
+
+<!-- ───────────── Footer ───────────── -->
+<footer class="bg-paper-100 border-t border-paper-200">
+  <div class="mx-auto max-w-6xl px-5 py-10 text-[12px] leading-relaxed text-ink-500">
+    <p class="font-serif font-bold text-[16px] tracking-[0.06em] text-ink-700">J-BABY TREND</p>
+    <p class="mt-3">본 데이터는 일본 주요 커머스 및 SNS 실시간 트렌드 지수를 크롤링하여 1시간마다 자동 갱신됩니다.</p>
+    <p class="mt-1">표시 가격은 수집 시점의 일본 현지 판매가(세금 포함)이며, 원화 금액은 참고용 환산가로 구매대행 수수료·배송비·관부가세는 포함되지 않습니다.</p>
+    <p class="mt-1">상품명·브랜드명은 각 권리자의 상표이며, 본 서비스는 해당 브랜드와 제휴 관계가 아닙니다.</p>
+    <p class="mt-6 font-label tracking-[0.12em] text-ink-400">© <span id="year"></span> J-BABY TREND</p>
+  </div>
+</footer>
+
+<!-- ───────────── 공구 문의 모달 ───────────── -->
+<div id="inquiryModal" class="fixed inset-0 z-50 hidden" aria-hidden="true">
+  <div data-close class="absolute inset-0 bg-black/40"></div>
+  <div role="dialog" aria-modal="true" aria-labelledby="inqTitle"
+       class="absolute inset-x-0 bottom-0 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-full sm:max-w-md max-h-[92vh] overflow-y-auto bg-white animate-fadeUp"
+       style="padding-bottom: env(safe-area-inset-bottom, 0px)">
+    <div class="sticky top-0 bg-white px-5 pt-5 pb-4 border-b border-paper-200 flex items-center justify-between">
+      <div>
+        <p class="font-label text-[10px] tracking-[0.2em] text-ink-400">CONTACT</p>
+        <h2 id="inqTitle" class="text-[16px] font-bold text-ink-700">공구 · 구매대행 문의</h2>
+      </div>
+      <button data-close class="tap w-10 h-10 grid place-items-center text-ink-500 hover:text-ink" aria-label="닫기">
+        <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="px-5 py-5">
+      <div id="inqProduct" class="flex gap-3 items-center"></div>
+      <form id="inquiryForm" class="mt-5 space-y-4" novalidate>
+        <label class="block">
+          <span class="text-[12px] text-ink-500">닉네임</span>
+          <input name="name" required maxlength="20" placeholder="예) 서준맘"
+                 class="mt-1 w-full border-0 border-b border-paper-300 bg-transparent px-0 py-2 text-[15px] outline-none focus:border-ink-700 focus:ring-0">
+        </label>
+        <label class="block">
+          <span class="text-[12px] text-ink-500">연락받을 카카오톡 ID 또는 인스타 계정</span>
+          <input name="contact" required maxlength="40" placeholder="예) kakao_id / @instagram"
+                 class="mt-1 w-full border-0 border-b border-paper-300 bg-transparent px-0 py-2 text-[15px] outline-none focus:border-ink-700 focus:ring-0">
+        </label>
+        <div class="grid grid-cols-2 gap-4">
+          <label class="block">
+            <span class="text-[12px] text-ink-500">수량</span>
+            <input name="qty" type="number" min="1" max="99" value="1" inputmode="numeric"
+                   class="mt-1 w-full border-0 border-b border-paper-300 bg-transparent px-0 py-2 text-[15px] outline-none focus:border-ink-700 focus:ring-0">
+          </label>
+          <label class="block">
+            <span class="text-[12px] text-ink-500">옵션 (사이즈·색상)</span>
+            <input name="option" maxlength="30" placeholder="예) 80cm / 아이보리"
+                   class="mt-1 w-full border-0 border-b border-paper-300 bg-transparent px-0 py-2 text-[15px] outline-none focus:border-ink-700 focus:ring-0">
+          </label>
+        </div>
+        <label class="block">
+          <span class="text-[12px] text-ink-500">메모</span>
+          <textarea name="memo" rows="2" maxlength="200" placeholder="원하는 수령 시기 등"
+                    class="mt-1 w-full border-0 border-b border-paper-300 bg-transparent px-0 py-2 text-[15px] outline-none focus:border-ink-700 focus:ring-0 resize-none"></textarea>
+        </label>
+        <p id="formError" class="hidden text-[12px] text-red-600">닉네임과 연락처를 입력해 주세요.</p>
+        <button type="submit" class="tap w-full bg-ink-900 hover:bg-black text-white py-3.5 text-[14px] tracking-wide transition">문의 남기기</button>
+        <p class="text-[11px] text-ink-400 text-center">데모 화면이에요. 실제 접수는 백엔드(API) 연동 후 동작합니다.</p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div id="toast" class="pointer-events-none fixed left-1/2 bottom-6 z-[60] -translate-x-1/2 hidden bg-ink-900 text-white text-[13px] px-5 py-3" role="status" aria-live="polite"></div>
+
+<script>
+/* =========================================================================
+ * 1) 크롤링 데이터 구조 (Mock)
+ *    - 실제 연동 시: 크롤러가 같은 스키마의 JSON 을 만들고 loadTrendData() 에서 fetch 한다.
+ *    - 아래 값은 화면 확인용 샘플이다. 순위·가격·뱃지·인스타 지수는 실제 값이 아니다.
+ * ========================================================================= */
+const DATA_META = {
+  isSample: true,                                        // 실데이터 연동 시 false
+  crawledAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(), // 크롤러가 기록한 수집 시각 (ISO 8601)
+  jpyToKrw: 8.45,                                        // 1엔당 원 (참고: 2026-10 기준 100엔≈843원). 실연동 시 환율 API 값으로 교체
+  sources: ['rakuten', 'amazon_jp', 'instagram', 'brand_official'],
+};
+
+/**
+ * @typedef {Object} TrendItem
+ * @property {string} id
+ * @property {number} rank            종합 랭킹 (1 = 1위)
+ * @property {number|null} rankDelta  직전 수집 대비 순위 변화 (+는 상승, null = NEW)
+ * @property {'clothing'|'feeding'|'toys'|'living'} category
+ * @property {string} brandJa
+ * @property {string} brandKo
+ * @property {string} nameJa
+ * @property {string} nameKo
+ * @property {number} priceJpy        세금 포함 현지가
+ * @property {'rakuten'|'amazon_jp'|'instagram'|'brand_official'} source
+ * @property {number} instaScore      인스타 해시태그·저장 수 기반 지수 (0~100)
+ * @property {string[]} badges        'rakuten1' | 'rakutenTop' | 'amazonBest' | 'instaHot' | 'jikguPick' | 'giftPick' | 'restock'
+ * @property {string} image           상품 이미지 URL
+ * @property {string} url             현지 상품/검색 페이지
+ */
+
+/** @type {TrendItem[]} */
+const mockTrendData = [
+  { id: 'jb-001', rank: 1, rankDelta: 2, category: 'clothing', brandJa: 'MARLMARL', brandKo: '마알마알',
+    nameJa: 'お食事エプロン', nameKo: '이유식 턱받이 앞치마', priceJpy: 4950, source: 'instagram', instaScore: 97,
+    badges: ['instaHot', 'giftPick'], image: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=600&q=80&auto=format&fit=crop',
+    url: 'https://search.rakuten.co.jp/search/mall/MARLMARL+%E3%81%8A%E9%A3%9F%E4%BA%8B%E3%82%A8%E3%83%97%E3%83%AD%E3%83%B3/' },
+  { id: 'jb-002', rank: 2, rankDelta: 0, category: 'feeding', brandJa: 'ピジョン', brandKo: '피죤',
+    nameJa: '母乳実感 哺乳びん プラスチック 160ml', nameKo: '모유실감 젖병 160ml (PPSU)', priceJpy: 1980, source: 'rakuten', instaScore: 74,
+    badges: ['rakuten1', 'jikguPick'], image: 'https://images.unsplash.com/photo-1584839404042-8bc21d240e91?w=600&q=80&auto=format&fit=crop',
+    url: 'https://search.rakuten.co.jp/search/mall/%E6%AF%8D%E4%B9%B3%E5%AE%9F%E6%84%9F+%E5%93%BA%E4%B9%B3%E3%81%B3%E3%82%93/' },
+  { id: 'jb-003', rank: 3, rankDelta: null, category: 'clothing', brandJa: 'ミキハウス', brandKo: '미키하우스',
+    nameJa: 'ファーストベビーシューズ', nameKo: '첫걸음 아기 신발', priceJpy: 8800, source: 'brand_official', instaScore: 88,
+    badges: ['giftPick', 'instaHot'], image: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600&q=80&auto=format&fit=crop',
+    url: 'https://search.rakuten.co.jp/search/mall/%E3%83%9F%E3%82%AD%E3%83%8F%E3%82%A6%E3%82%B9+%E3%83%95%E3%82%A1%E3%83%BC%E3%82%B9%E3%83%88%E3%82%B7%E3%83%A5%E3%83%BC%E3%82%BA/' },
+  { id: 'jb-004', rank: 4, rankDelta: 1, category: 'feeding', brandJa: '明治', brandKo: '메이지',
+    nameJa: 'ほほえみ らくらくキューブ', nameKo: '호호에미 큐브형 분유', priceJpy: 1880, source: 'amazon_jp', instaScore: 69,
+    badges: ['amazonBest', 'jikguPick'], image: 'https://images.unsplash.com/photo-1563396983906-b3795482a59a?w=600&q=80&auto=format&fit=crop',
+    url: 'https://search.rakuten.co.jp/search/mall/%E3%81%BB%E3%81%BB%E3%81%88%E3%81%BF+%E3%82%89%E3%81%8F%E3%82%89%E3%81%8F%E3%82%AD%E3%83%A5%E3%83%BC%E3%83%96/' },
+  { id: 'jb-005', rank: 5, rankDelta: -2, category: 'clothing', brandJa: 'familiar', brandKo: '패밀리아',
+    nameJa: 'タオルハンカチ（ファミリアチェック）', nameKo: '타월 손수건 (패밀리아 체크)', priceJpy: 1430, source: 'brand_official', instaScore: 81,
+    badges: ['giftPick'], image: 'https://images.unsplash.com/photo-1522771930-78848d9293e8?w=600&q=80&auto=format&fit=crop',
+    url: 'https://search.rakuten.co.jp/search/mall/%E3%83%95%E3%82%A1%E3%83%9F%E3%83%AA%E3%82%A2+%E3%82%BF%E3%82%AA%E3%83%AB%E3%83%8F%E3%83%B3%E3%82%AB%E3%83%81/' },
+  { id: 'jb-006', rank: 6, rankDelta: 3, category: 'toys', brandJa: 'くもん出版', brandKo: '쿠몬',
+    nameJa: 'くるくるチャイム', nameKo: '빙글빙글 차임 (공 굴리기 장난감)', priceJpy: 4840, source: 'amazon_jp', instaScore: 85,
+    badges: ['amazonBest', 'instaHot'], image: 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=600&q=80&auto=format&fit=crop',
+    url: 'https://search.rakuten.co.jp/search/mall/%E3%81%8F%E3%82%82%E3%82%93+%E3%81%8F%E3%82%8B%E3%81%8F%E3%82%8B%E3%83%81%E3%83%A3%E3%82%A4%E3%83%A0/' },
+  { id: 'jb-007', rank: 7, rankDelta: 0, category: 'feeding', brandJa: 'リッチェル', brandKo: '릿첼',
+    nameJa: 'トライ ベビーストローマグ 200', nameKo: '트라이 빨대컵 200ml', priceJpy: 1320, source: 'rakuten', instaScore: 72,
+    badges: ['rakutenTop', 'jikguPick'], image: 'https://images.unsplash.com/photo-1544126592-807ade215a0b?w=600&q=80&auto=format&fit=crop',
+    url: 'https://search.rakuten.co.jp/search/mall/%E3%83%AA%E3%83%83%E3%83%81%E3%82%A7%E3%83%AB+%E3%82%B9%E3%83%88%E3%83%AD%E3%83%BC%E3%83%9E%E3%82%B0/' },
+  { id: 'jb-008', rank: 8, rankDelta: 4, category: 'living', brandJa: 'キュレル', brandKo: '큐렐',
+    nameJa: 'ベビーミルクジェル', nameKo: '베이비 밀크 젤 (보습)', priceJpy: 1540, source: 'instagram', instaScore: 90,
+    badges: ['instaHot', 'restock'], image: 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=600&q=80&auto=format&fit=crop',
+    url: 'https://search.rakuten.co.jp/search/mall/%E3%82%AD%E3%83%A5%E3%83%AC%E3%83%AB+%E3%83%99%E3%83%93%E3%83%BC%E3%83%9F%E3%83%AB%E3%82%AF%E3%82%B8%E3%82%A7%E3%83%AB/' },
+  { id: 'jb-009', rank: 9, rankDelta: -1, category: 'toys', brandJa: '学研ステイフル', brandKo: '각켄',
+    nameJa: 'ニューブロック バッグ', nameKo: '뉴블록 가방 세트', priceJpy: 3960, source: 'rakuten', instaScore: 66,
+    badges: ['rakutenTop'], image: 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=600&q=80&auto=format&fit=crop',
+    url: 'https://search.rakuten.co.jp/search/mall/%E5%AD%A6%E7%A0%94+%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%96%E3%83%AD%E3%83%83%E3%82%AF/' },
+  { id: 'jb-010', rank: 10, rankDelta: null, category: 'clothing', brandJa: 'MARLMARL', brandKo: '마알마알',
+    nameJa: 'おくるみ（スワドル）', nameKo: '신생아 속싸개 (스와들)', priceJpy: 6600, source: 'instagram', instaScore: 92,
+    badges: ['instaHot', 'giftPick'], image: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=600&q=80&auto=format&fit=crop',
+    url: 'https://search.rakuten.co.jp/search/mall/MARLMARL+%E3%81%8A%E3%81%8F%E3%82%8B%E3%81%BF/' },
+  { id: 'jb-011', rank: 11, rankDelta: 1, category: 'living', brandJa: 'ムーニー', brandKo: '무니',
+    nameJa: 'ナチュラルムーニー テープ Mサイズ', nameKo: '내추럴 무니 밴드형 기저귀 M', priceJpy: 1848, source: 'amazon_jp', instaScore: 58,
+    badges: ['amazonBest', 'jikguPick'], image: 'https://images.unsplash.com/photo-1612531386530-97286d97c2d2?w=600&q=80&auto=format&fit=crop',
+    url: 'https://search.rakuten.co.jp/search/mall/%E3%83%8A%E3%83%81%E3%83%A5%E3%83%A9%E3%83%AB%E3%83%A0%E3%83%BC%E3%83%8B%E3%83%BC/' },
+  { id: 'jb-012', rank: 12, rankDelta: 2, category: 'feeding', brandJa: 'エジソンママ', brandKo: '에디슨마마',
+    nameJa: 'フォーク＆スプーン ベビー', nameKo: '아기 포크 & 스푼 세트', priceJpy: 990, source: 'rakuten', instaScore: 63,
+    badges: ['rakutenTop', 'jikguPick'], image: 'https://images.unsplash.com/photo-1590845947670-c009801ffa74?w=600&q=80&auto=format&fit=crop',
+    url: 'https://search.rakuten.co.jp/search/mall/%E3%82%A8%E3%82%B8%E3%82%BD%E3%83%B3%E3%83%9E%E3%83%9E+%E3%83%95%E3%82%A9%E3%83%BC%E3%82%AF/' },
+  { id: 'jb-013', rank: 13, rankDelta: -3, category: 'clothing', brandJa: 'ミキハウス', brandKo: '미키하우스',
+    nameJa: 'ホットビスケッツ スタイ', nameKo: '핫비스킷 턱받이', priceJpy: 2420, source: 'brand_official', instaScore: 76,
+    badges: ['giftPick'], image: 'https://images.unsplash.com/photo-1566004100631-35d015d6a491?w=600&q=80&auto=format&fit=crop',
+    url: 'https://search.rakuten.co.jp/search/mall/%E3%83%9B%E3%83%83%E3%83%88%E3%83%93%E3%82%B9%E3%82%B1%E3%83%83%E3%83%84+%E3%82%B9%E3%82%BF%E3%82%A4/' },
+  { id: 'jb-014', rank: 14, rankDelta: 5, category: 'living', brandJa: 'ピジョン', brandKo: '피죤',
+    nameJa: '全身泡ソープ しっとり', nameKo: '전신 거품 바디워시 (촉촉)', priceJpy: 770, source: 'rakuten', instaScore: 54,
+    badges: ['rakutenTop'], image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600&q=80&auto=format&fit=crop',
+    url: 'https://search.rakuten.co.jp/search/mall/%E3%83%94%E3%82%B8%E3%83%A7%E3%83%B3+%E5%85%A8%E8%BA%AB%E6%B3%A1%E3%82%BD%E3%83%BC%E3%83%97/' },
+  { id: 'jb-015', rank: 15, rankDelta: null, category: 'toys', brandJa: 'familiar', brandKo: '패밀리아',
+    nameJa: 'ファミリアベア ぬいぐるみ', nameKo: '패밀리아 곰 인형', priceJpy: 5500, source: 'instagram', instaScore: 89,
+    badges: ['instaHot', 'giftPick'], image: 'https://images.unsplash.com/photo-1530325553241-4f6e7690cf36?w=600&q=80&auto=format&fit=crop',
+    url: 'https://search.rakuten.co.jp/search/mall/%E3%83%95%E3%82%A1%E3%83%9F%E3%83%AA%E3%82%A2+%E3%81%AC%E3%81%84%E3%81%90%E3%82%8B%E3%81%BF/' },
+  { id: 'jb-016', rank: 16, rankDelta: -1, category: 'toys', brandJa: 'ピープル', brandKo: '피플',
+    nameJa: '知育いたずら1歳 やりたい放題', nameKo: '1살 마음껏 장난 지육 장난감', priceJpy: 4290, source: 'amazon_jp', instaScore: 70,
+    badges: ['amazonBest'], image: 'https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=600&q=80&auto=format&fit=crop',
+    url: 'https://search.rakuten.co.jp/search/mall/%E3%83%94%E3%83%BC%E3%83%97%E3%83%AB+%E3%82%84%E3%82%8A%E3%81%9F%E3%81%84%E6%94%BE%E9%A1%8C/' },
+];
+
+
+/* =========================================================================
+ * 2) 표시 설정
+ * ========================================================================= */
+const CATEGORIES = [
+  { id: 'all',      label: '전체',        en: 'ALL',     icon: 'M4 7h16M4 12h16M4 17h16' },
+  { id: 'clothing', label: '의류/잡화',   en: 'WEAR',    icon: 'M8 4l-4 3 2 4 2-1v10h8V10l2 1 2-4-4-3c-1 1.5-2.4 2.2-4 2.2S9 5.5 8 4z' },
+  { id: 'feeding',  label: '분유/수유',   en: 'FEEDING', icon: 'M10 3h4v3h-4zM9 6h6l1 3v10a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9zM8 12h8' },
+  { id: 'toys',     label: '장난감/교구', en: 'TOYS',    icon: 'M7.5 9a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zM16.5 9a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zM12 21a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM10 13h.01M14 13h.01M10.5 16.5c.9.6 2.1.6 3 0' },
+  { id: 'living',   label: '생활/위생',   en: 'CARE',    icon: 'M4 12h16v2a6 6 0 0 1-6 6h-4a6 6 0 0 1-6-6zM6 12V6a2 2 0 0 1 4 0M7 20l-1 1.5M17 20l1 1.5' },
+];
+const SORTS = [
+  { id: 'rank',  label: '실시간 랭킹순' },
+  { id: 'insta', label: '인스타 핫아이템' },
+  { id: 'price', label: '가격 낮은순' },
+];
+const BADGES = {
+  rakuten1:   '🏷️ 라쿠텐 1위',
+  rakutenTop: '🏷️ 라쿠텐 TOP10',
+  amazonBest: '📦 아마존 베스트',
+  instaHot:   '🔥 인스타 공구 폭주',
+  jikguPick:  '✈️ 직구 꿀템',
+  giftPick:   '🎁 출산선물 인기',
+  restock:    '🔁 재입고',
+};
+const SOURCE_LABEL = { rakuten: 'RAKUTEN', amazon_jp: 'AMAZON JP', instagram: 'INSTAGRAM', brand_official: 'OFFICIAL' };
+const CATEGORY_ICON = Object.fromEntries(CATEGORIES.map((c) => [c.id, c.icon]));
+const PAGE = 8;
+
+/* =========================================================================
+ * 3) 상태 & 유틸
+ * ========================================================================= */
+const state = { items: [], category: 'all', sort: 'rank', shown: PAGE };
+const $ = (sel) => document.querySelector(sel);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const yen = (n) => '¥' + n.toLocaleString('ja-JP');
+const won = (n) => '≈ ₩' + (Math.round((n * DATA_META.jpyToKrw) / 100) * 100).toLocaleString('ko-KR');
+
+/** 이미지가 안 뜰 때(오프라인·URL 만료) 회색 바탕 + 선 아이콘으로 대체 */
+function placeholderFor(category) {
+  const path = CATEGORY_ICON[category] || CATEGORY_ICON.all;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#f2f2f2"/>
+    <g transform="translate(140 140) scale(5)" fill="none" stroke="#c4c4c0" stroke-width=".9" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></g></svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
+function relativeTime(iso) {
+  const min = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+  if (min < 1) return '방금 업데이트';
+  if (min < 60) return `${min}분 전 업데이트`;
+  const h = Math.floor(min / 60);
+  return h < 24 ? `${h}시간 전 업데이트` : `${Math.floor(h / 24)}일 전 업데이트`;
+}
+
+let toastTimer;
+function toast(msg) {
+  const el = $('#toast');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.add('hidden'), 2400);
+}
+
+/* =========================================================================
+ * 4) 렌더링
+ * ========================================================================= */
+function renderTabs() {
+  $('#categoryTabs').innerHTML = CATEGORIES.map((c) => {
+    const on = state.category === c.id;
+    const count = c.id === 'all' ? state.items.length : state.items.filter((i) => i.category === c.id).length;
+    return `<button role="tab" aria-selected="${on}" data-category="${c.id}" class="tap shrink-0 w-[84px] flex flex-col items-center gap-2 group">
+      <span class="grid place-items-center w-[76px] h-[76px] bg-white ${on ? 'ring-1 ring-ink-700' : ''} transition">
+        <svg viewBox="0 0 24 24" class="w-8 h-8 ${on ? 'text-ink-700' : 'text-ink-400 group-hover:text-ink-700'}" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${c.icon}"/></svg>
+      </span>
+      <span class="text-[12.5px] ${on ? 'text-ink font-medium' : 'text-ink-500'}">${c.label}</span>
+      <span class="-mt-1.5 font-label text-[10px] tracking-[0.14em] text-ink-400">${c.en} · ${count}</span>
+    </button>`;
+  }).join('');
+  // 하단 진행 막대 (선택 탭 위치 표시)
+  const idx = CATEGORIES.findIndex((c) => c.id === state.category);
+  const ind = $('#tabIndicator');
+  ind.style.width = `${100 / CATEGORIES.length}%`;
+  ind.style.left = `${(100 / CATEGORIES.length) * idx}%`;
+}
+
+function renderSorts() {
+  $('#sortGroup').innerHTML = SORTS.map((s) => {
+    const on = state.sort === s.id;
+    return `<button aria-pressed="${on}" data-sort="${s.id}"
+      class="tap pb-1 border-b transition ${on ? 'border-ink-700 text-ink font-medium' : 'border-transparent text-ink-400 hover:text-ink-700'}">${s.label}</button>`;
+  }).join('');
+}
+
+function visibleItems() {
+  const list = state.items.filter((i) => state.category === 'all' || i.category === state.category);
+  const by = {
+    rank: (a, b) => a.rank - b.rank,
+    insta: (a, b) => b.instaScore - a.instaScore || a.rank - b.rank,
+    price: (a, b) => a.priceJpy - b.priceJpy || a.rank - b.rank,
+  }[state.sort];
+  return list.sort(by);
+}
+
+function deltaText(d) {
+  if (d === null) return '<span class="text-ink-700">NEW</span>';
+  if (d > 0) return `<span class="text-red-500">▲${d}</span>`;
+  if (d < 0) return `<span class="text-sky-600">▼${-d}</span>`;
+  return '<span class="text-ink-300">—</span>';
+}
+
+function cardHTML(item, i) {
+  const badges = item.badges.map((b) => BADGES[b]).filter(Boolean).slice(0, 2)
+    .map((t) => `<span class="inline-block border border-paper-300 px-1.5 py-0.5 text-[10.5px] text-ink-500">${t}</span>`).join('');
+  const rankTag = item.rank <= 3
+    ? `<span class="absolute left-0 top-0 bg-ink-900 text-white font-label text-[11px] tracking-[0.1em] px-2.5 py-1">No.${item.rank}</span>`
+    : `<span class="absolute left-0 top-0 bg-white/90 text-ink-700 font-label text-[11px] tracking-[0.1em] px-2.5 py-1">No.${item.rank}</span>`;
+  return `<li class="animate-fadeUp" style="animation-delay:${Math.min(i % PAGE, 8) * 40}ms">
+  <article class="h-full flex flex-col">
+    <a href="${esc(item.url)}" target="_blank" rel="noopener" class="relative block aspect-square bg-mist overflow-hidden tap group" aria-label="${esc(item.nameKo)} 일본 현지 페이지 열기">
+      <img src="${esc(item.image)}" alt="${esc(item.nameKo)}" loading="lazy" decoding="async"
+           class="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-[1.03]" data-category="${item.category}">
+      ${rankTag}
+      <span class="absolute right-0 bottom-0 bg-white/90 font-label text-[9.5px] tracking-[0.14em] text-ink-500 px-2 py-1">${SOURCE_LABEL[item.source] || ''}</span>
+      ${state.sort === 'insta' ? `<span class="absolute left-0 bottom-0 bg-ink-900/80 text-white text-[10px] px-2 py-1">📸 ${item.instaScore}</span>` : ''}
+    </a>
+    <div class="flex-1 flex flex-col pt-3">
+      <p class="flex items-center justify-between gap-2 font-label text-[10.5px] tracking-[0.1em] text-ink-400">
+        <span class="truncate">${esc(item.brandJa)}</span><span class="shrink-0">${deltaText(item.rankDelta)}</span>
+      </p>
+      <h3 class="mt-1 font-jp text-[13px] leading-snug text-ink-700 line-clamp-2">${esc(item.nameJa)}</h3>
+      <p class="mt-0.5 text-[12.5px] leading-snug text-ink-500 line-clamp-2">${esc(item.brandKo)} · ${esc(item.nameKo)}</p>
+      <p class="mt-2 text-[14px] text-ink-700">${yen(item.priceJpy)} <span class="text-[11px] text-ink-400">(税込)</span></p>
+      <p class="text-[11.5px] text-ink-400">${won(item.priceJpy)}</p>
+      <div class="mt-2 flex flex-wrap gap-1">${badges}</div>
+      <div class="mt-auto pt-3 grid grid-cols-[40px,1fr]">
+        <button data-share="${item.id}" class="tap grid place-items-center h-10 border border-r-0 border-ink-300 text-ink-500 hover:text-ink" aria-label="카톡·인스타로 공유하기">
+          <svg viewBox="0 0 24 24" class="w-[17px] h-[17px]" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/></svg>
+        </button>
+        <button data-inquiry="${item.id}" class="tap h-10 border border-ink-900 text-[12.5px] text-ink-700 hover:bg-ink-900 hover:text-white transition">공구 문의하기</button>
+      </div>
+    </div>
+  </article></li>`;
+}
+
+function renderGrid() {
+  const list = visibleItems();
+  const page = list.slice(0, state.shown);
+  $('#productGrid').innerHTML = page.map(cardHTML).join('');
+  $('#resultCount').textContent = list.length;
+  $('#emptyState').classList.toggle('hidden', list.length > 0);
+  const more = $('#moreBtn');
+  more.classList.toggle('hidden', list.length <= state.shown);
+  more.classList.toggle('flex', list.length > state.shown);
+  document.querySelectorAll('#productGrid img').forEach((img) => {
+    img.addEventListener('error', () => { img.src = placeholderFor(img.dataset.category); }, { once: true });
+  });
+}
+
+function renderAll() { renderTabs(); renderSorts(); renderGrid(); }
+function renderLive() { $('#liveText').textContent = relativeTime(DATA_META.crawledAt); }
+
+/* =========================================================================
+ * 5) 공유 / 문의
+ * ========================================================================= */
+async function shareItem(item) {
+  const text = `[J-Baby Trend] ${item.brandKo} ${item.nameKo}\n${yen(item.priceJpy)} (${won(item.priceJpy)})`;
+  const url = location.href.split('#')[0] + '#' + item.id;
+  if (navigator.share) {
+    try { await navigator.share({ title: item.nameKo, text, url }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  // Web Share 미지원(PC 등): 클립보드 복사 → 카톡/인스타 DM 에 붙여넣기
+  try {
+    await navigator.clipboard.writeText(`${text}\n${url}`);
+    toast('링크를 복사했어요. 카톡·인스타에 붙여넣어 공유하세요.');
+  } catch {
+    toast('공유가 지원되지 않는 환경이에요.');
+  }
+  // 카카오톡 공유 버튼을 정식으로 붙이려면 Kakao JavaScript SDK + 앱 키 필요 (Kakao.Share.sendDefault)
+}
+
+let lastFocus = null;
+function openInquiry(item) {
+  lastFocus = document.activeElement;
+  $('#inqProduct').innerHTML = `
+    <img src="${esc(item.image)}" alt="" class="w-16 h-16 object-cover bg-mist" onerror="this.src='${placeholderFor(item.category)}'">
+    <div class="min-w-0">
+      <p class="font-label text-[10.5px] tracking-[0.1em] text-ink-400 truncate">${esc(item.brandJa)}</p>
+      <p class="font-jp text-[13.5px] text-ink-700 truncate">${esc(item.nameJa)}</p>
+      <p class="text-[12px] text-ink-500 truncate">${esc(item.nameKo)}</p>
+      <p class="text-[12px] text-ink-700">${yen(item.priceJpy)} <span class="text-ink-400">${won(item.priceJpy)}</span></p>
+    </div>`;
+  const form = $('#inquiryForm');
+  form.reset();
+  form.dataset.itemId = item.id;
+  $('#formError').classList.add('hidden');
+  const modal = $('#inquiryModal');
+  modal.classList.remove('hidden');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => form.elements.name.focus(), 50);
+}
+function closeInquiry() {
+  const modal = $('#inquiryModal');
+  modal.classList.add('hidden');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  if (lastFocus) lastFocus.focus();
+}
+
+/* =========================================================================
+ * 6) 이벤트
+ * ========================================================================= */
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-category],[data-sort],[data-share],[data-inquiry],[data-close],#moreBtn');
+  if (!t) return;
+  if (t.id === 'moreBtn') { state.shown += PAGE; renderGrid(); return; }
+  if (t.dataset.category) { state.category = t.dataset.category; state.shown = PAGE; renderAll(); return; }
+  if (t.dataset.sort) { state.sort = t.dataset.sort; state.shown = PAGE; renderSorts(); renderGrid(); return; }
+  const find = (id) => state.items.find((i) => i.id === id);
+  if (t.dataset.share) { shareItem(find(t.dataset.share)); return; }
+  if (t.dataset.inquiry) { openInquiry(find(t.dataset.inquiry)); return; }
+  if (t.hasAttribute('data-close')) closeInquiry();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !$('#inquiryModal').classList.contains('hidden')) closeInquiry();
+});
+$('#inquiryForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const f = e.currentTarget;
+  if (!f.elements.name.value.trim() || !f.elements.contact.value.trim()) {
+    $('#formError').classList.remove('hidden');
+    return;
+  }
+  const payload = {
+    itemId: f.dataset.itemId,
+    name: f.elements.name.value.trim(),
+    contact: f.elements.contact.value.trim(),
+    qty: Math.max(1, parseInt(f.elements.qty.value, 10) || 1),
+    option: f.elements.option.value.trim(),
+    memo: f.elements.memo.value.trim(),
+  };
+  console.log('[inquiry payload]', payload); // TODO: fetch('/api/inquiries', { method: 'POST', body: JSON.stringify(payload) })
+  closeInquiry();
+  toast('문의 내용을 확인했어요 (데모 — 실제 전송은 API 연동 후)');
+});
+$('#heroImg').addEventListener('error', (e) => { e.target.remove(); }, { once: true });
+
+/* =========================================================================
+ * 7) 데이터 로드
+ *    실데이터: 크롤러가 만든 trend.json 을 같은 폴더(또는 API)에 두고 USE_REMOTE = true
+ * ========================================================================= */
+const USE_REMOTE = false;
+const REMOTE_URL = './trend.json'; // { meta: { crawledAt, jpyToKrw }, items: TrendItem[] }
+
+async function loadTrendData() {
+  if (USE_REMOTE) {
+    try {
+      const res = await fetch(REMOTE_URL, { cache: 'no-store' });
+      const json = await res.json();
+      Object.assign(DATA_META, json.meta, { isSample: false });
+      return json.items;
+    } catch (err) {
+      console.warn('원격 데이터 로드 실패 → 샘플 데이터 사용', err);
+    }
+  }
+  return mockTrendData;
+}
+
+(async function init() {
+  $('#year').textContent = new Date().getFullYear();
+  state.items = await loadTrendData();
+  $('#rateText').textContent = `¥100 ≈ ₩${Math.round(DATA_META.jpyToKrw * 100).toLocaleString('ko-KR')}`;
+  $('#sampleNotice').classList.toggle('hidden', !DATA_META.isSample);
+  renderLive();
+  setInterval(renderLive, 60 * 1000);
+  renderAll();
+})();
+
+/* =========================================================================
+ * 8) [참고] Python 크롤러 예시 — trend.json 생성
+ * -------------------------------------------------------------------------
+ * ⚠️ 운영 전 체크
+ *  - 라쿠텐: HTML 스크래핑보다 공식 「楽天市場ランキングAPI」 사용을 권장 (applicationId 발급, 무료).
+ *            엔드포인트·버전은 Rakuten Developers 공식 문서에서 최신 값을 확인할 것.
+ *  - 아마존 재팬: 이용약관상 스크래핑 금지. Product Advertising API(어소시에이트 승인 필요) 사용.
+ *  - 브랜드 공식몰(familiar / MIKI HOUSE / MARLMARL 등): robots.txt·이용약관 확인,
+ *    상품 사진은 저작물이므로 무단 재사용 금지 → 이미지는 링크/허락받은 소재만 사용.
+ *  - 요청 간격을 두고(예: 2~3초), 수집은 1시간 1회 정도로 제한.
+ *
+ * # pip install requests beautifulsoup4
+ * import json, time, datetime, requests
+ * from bs4 import BeautifulSoup
+ *
+ * HEADERS = {"User-Agent": "JBabyTrendBot/1.0 (+https://your-site.example/bot)"}
+ * CATEGORY_RULES = [  # 상품명 키워드 → 카테고리
+ *     ("feeding",  ["哺乳", "ミルク", "マグ", "離乳食", "スプーン", "授乳"]),
+ *     ("toys",     ["おもちゃ", "知育", "ブロック", "ぬいぐるみ", "絵本"]),
+ *     ("living",   ["おむつ", "ソープ", "ローション", "ガーゼ", "爪切り"]),
+ *     ("clothing", ["スタイ", "エプロン", "肌着", "シューズ", "おくるみ", "帽子"]),
+ * ]
+ * def guess_category(name):
+ *     for cat, words in CATEGORY_RULES:
+ *         if any(w in name for w in words):
+ *             return cat
+ *     return "living"
+ *
+ * # ① 라쿠텐 랭킹 API (권장) — genreId 100533 = キッズ・ベビー・マタニティ
+ * def fetch_rakuten_ranking(app_id, genre_id="100533"):
+ *     url = "https://app.rakuten.co.jp/services/api/IchibaItem/Ranking/20220601"
+ *     r = requests.get(url, params={"applicationId": app_id, "genreId": genre_id, "format": "json"},
+ *                      headers=HEADERS, timeout=15)
+ *     r.raise_for_status()
+ *     items = []
+ *     for row in r.json().get("Items", []):
+ *         it = row.get("Item", row)
+ *         items.append({
+ *             "id": f"rk-{it['itemCode']}",
+ *             "rank": int(it["rank"]),
+ *             "rankDelta": None,                      # 직전 trend.json 과 비교해 채운다
+ *             "category": guess_category(it["itemName"]),
+ *             "brandJa": it.get("shopName", ""), "brandKo": "",
+ *             "nameJa": it["itemName"][:60], "nameKo": "",  # 번역은 별도 단계(번역 API)에서
+ *             "priceJpy": int(it["itemPrice"]),
+ *             "source": "rakuten", "instaScore": 0,
+ *             "badges": ["rakuten1"] if int(it["rank"]) == 1 else (["rakutenTop"] if int(it["rank"]) <= 10 else []),
+ *             "image": (it.get("mediumImageUrls") or [{"imageUrl": ""}])[0]["imageUrl"],
+ *             "url": it["itemUrl"],
+ *         })
+ *     return items
+ *
+ * # ② HTML 랭킹/상품 목록 페이지를 BeautifulSoup 으로 파싱하는 형태 (허용된 페이지에 한함)
+ * def fetch_html_list(url, card_sel, name_sel, price_sel, link_sel, img_sel, source):
+ *     html = requests.get(url, headers=HEADERS, timeout=15).text
+ *     soup = BeautifulSoup(html, "html.parser")
+ *     out = []
+ *     for rank, card in enumerate(soup.select(card_sel), start=1):
+ *         name = card.select_one(name_sel).get_text(strip=True)
+ *         price = int("".join(ch for ch in card.select_one(price_sel).get_text() if ch.isdigit()) or 0)
+ *         out.append({
+ *             "id": f"{source}-{rank}", "rank": rank, "rankDelta": None,
+ *             "category": guess_category(name), "brandJa": "", "brandKo": "",
+ *             "nameJa": name, "nameKo": "", "priceJpy": price, "source": source,
+ *             "instaScore": 0, "badges": [],
+ *             "image": card.select_one(img_sel).get("src", ""),
+ *             "url": card.select_one(link_sel).get("href", ""),
+ *         })
+ *         time.sleep(0.2)
+ *     return out
+ *
+ * if __name__ == "__main__":
+ *     items = fetch_rakuten_ranking(app_id="YOUR_RAKUTEN_APP_ID")[:30]
+ *     meta = {"crawledAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+ *             "jpyToKrw": 8.45}  # 환율 API 값으로 교체
+ *     with open("trend.json", "w", encoding="utf-8") as f:
+ *         json.dump({"meta": meta, "items": items}, f, ensure_ascii=False, indent=2)
+ *     print(f"saved {len(items)} items")
+ *
+ * # 1시간마다 실행: crontab →  0 * * * * cd /path/to/site && python3 crawler.py
+ * ========================================================================= */
+</script>
+</body>
+</html>
